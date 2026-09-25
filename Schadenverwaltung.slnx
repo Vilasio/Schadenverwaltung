@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Schadenverwaltung.Api/Schadenverwaltung.Api.csproj" />
+    <Project Path="src/Schadenverwaltung.Domain/Schadenverwaltung.Domain.csproj" />
+    <Project Path="src/Schadenverwaltung.Infrastructure/Schadenverwaltung.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Schadenverwaltung.Tests/Schadenverwaltung.Tests.csproj" />
+  </Folder>
+</Solution>
