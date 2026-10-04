@@ -32,4 +32,23 @@ public class Claim
 
         Status = ClaimStatus.Reported;
     }
+
+    public void ChangeStatus(ClaimStatus newStatus)
+    {
+        this.Status = newStatus;
+    }
+
+    public void AddPayment(Payment payment)
+    {
+        ArgumentNullException.ThrowIfNull(payment);
+
+        if (this.Status is  ClaimStatus.Rejected or ClaimStatus.Closed) 
+        {
+            throw new InvalidOperationException($"Auf diesen Schaden ({this.ClaimNumber}) kann aufgrund des Status " +
+                                                $"\"{this.Status.ToDisplayText()}\" keine Auszahlung getätigt werden.");
+        }
+
+        
+        _payments.Add(payment);
+    }
 }
