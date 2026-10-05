@@ -36,6 +36,11 @@ public class Claim
 
     public void ChangeStatus(ClaimStatus newStatus)
     {
+        if (!IsTransitionAllowed(Status, newStatus))
+        {
+            throw new InvalidOperationException($"Stauswechsel von \"{Status.ToDisplayText()}\" nach \"{newStatus.ToDisplayText()}\" ist nicht erlaubt.");
+        }
+
         Status = newStatus;
     }
 
@@ -55,4 +60,13 @@ public class Claim
 
         return new AddPaymentResult(totalPaid, totalPaid > Reserve);
     }
+
+    private static bool IsTransitionAllowed(ClaimStatus from, ClaimStatus to) => (from, to) switch
+    {
+        (ClaimStatus.Reported, ClaimStatus.UnderReview or ClaimStatus.Rejected) => true,
+        (ClaimStatus.UnderReview, ClaimStatus.Settled or ClaimStatus.Rejected) => true,
+        (ClaimStatus.Settled, ClaimStatus.Closed) => true,
+        (ClaimStatus.Rejected, ClaimStatus.Closed) => true,
+        _ => false
+    };
 }

@@ -100,4 +100,60 @@ public class ClaimTests
         Assert.Equal(expectedExceeded, result.ReserveExceeded);
         Assert.Equal(initialAmount + newAmount, result.TotalPaid);
     }
+
+    [Theory]
+    [InlineData(ClaimStatus.Reported, ClaimStatus.UnderReview)]
+    [InlineData(ClaimStatus.Reported, ClaimStatus.Rejected)]
+    [InlineData(ClaimStatus.UnderReview, ClaimStatus.Settled)]
+    [InlineData(ClaimStatus.UnderReview, ClaimStatus.Rejected)]
+    [InlineData(ClaimStatus.Settled, ClaimStatus.Closed)]
+    [InlineData(ClaimStatus.Rejected, ClaimStatus.Closed)]
+    public void ChangeStatus_AllowedTransition_SetsNewStatus(ClaimStatus from, ClaimStatus to)
+    {
+        // Arrange
+        var claim = CreateClaimInStatus(from);
+
+        // Act
+        claim.ChangeStatus(to);
+
+        // Assert
+        Assert.Equal(to, claim.Status);
+    }
+
+    [Theory]
+    // Reported
+    [InlineData(ClaimStatus.Reported, ClaimStatus.Reported)]
+    [InlineData(ClaimStatus.Reported, ClaimStatus.Settled)]
+    [InlineData(ClaimStatus.Reported, ClaimStatus.Closed)]
+    // UnderReview
+    [InlineData(ClaimStatus.UnderReview, ClaimStatus.UnderReview)]
+    [InlineData(ClaimStatus.UnderReview, ClaimStatus.Reported)]
+    [InlineData(ClaimStatus.UnderReview, ClaimStatus.Closed)]
+    // Settled
+    [InlineData(ClaimStatus.Settled, ClaimStatus.Settled)]
+    [InlineData(ClaimStatus.Settled, ClaimStatus.Reported)]
+    [InlineData(ClaimStatus.Settled, ClaimStatus.UnderReview)]
+    [InlineData(ClaimStatus.Settled, ClaimStatus.Rejected)]
+    // Rejected
+    [InlineData(ClaimStatus.Rejected, ClaimStatus.Rejected)]
+    [InlineData(ClaimStatus.Rejected, ClaimStatus.Reported)]
+    [InlineData(ClaimStatus.Rejected, ClaimStatus.UnderReview)]
+    [InlineData(ClaimStatus.Rejected, ClaimStatus.Settled)]
+    // Closed
+    [InlineData(ClaimStatus.Closed, ClaimStatus.Closed)]
+    [InlineData(ClaimStatus.Closed, ClaimStatus.Reported)]
+    [InlineData(ClaimStatus.Closed, ClaimStatus.UnderReview)]
+    [InlineData(ClaimStatus.Closed, ClaimStatus.Settled)]
+    [InlineData(ClaimStatus.Closed, ClaimStatus.Rejected)]
+    public void ChangeStatus_ForbiddenTransition_ThrowsAndKeepsStatus(ClaimStatus from, ClaimStatus to)
+    {
+        // Arrange
+        var claim = CreateClaimInStatus(from);
+
+        // Act + Assert
+        Assert.Throws<InvalidOperationException>(() => claim.ChangeStatus(to));
+
+        // Assert
+        Assert.Equal(from, claim.Status);
+    }
 }
