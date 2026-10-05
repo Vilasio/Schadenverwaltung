@@ -1,4 +1,5 @@
 using Schadenverwaltung.Domain.Enums;
+using Schadenverwaltung.Domain.Results;
 
 namespace Schadenverwaltung.Domain.Entities;
 
@@ -14,8 +15,8 @@ public class Claim
     public decimal Reserve { get; private set; }
     public ClaimStatus Status { get; private set; }
 
-    public Claim(int contractId, string claimNumber, DateOnly dateOfLoss, 
-                    string description, decimal reserve)
+    public Claim(int contractId, string claimNumber, DateOnly dateOfLoss,
+        string description, decimal reserve)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(contractId);
         ArgumentException.ThrowIfNullOrWhiteSpace(claimNumber);
@@ -35,20 +36,23 @@ public class Claim
 
     public void ChangeStatus(ClaimStatus newStatus)
     {
-        this.Status = newStatus;
+        Status = newStatus;
     }
 
-    public void AddPayment(Payment payment)
+    public AddPaymentResult AddPayment(Payment payment)
     {
         ArgumentNullException.ThrowIfNull(payment);
 
-        if (this.Status is  ClaimStatus.Rejected or ClaimStatus.Closed) 
+        if (Status is ClaimStatus.Rejected or ClaimStatus.Closed)
         {
-            throw new InvalidOperationException($"Auf diesen Schaden ({this.ClaimNumber}) kann aufgrund des Status " +
-                                                $"\"{this.Status.ToDisplayText()}\" keine Auszahlung getätigt werden.");
+            throw new InvalidOperationException($"Auf diesen Schaden ({ClaimNumber}) kann aufgrund des Status " +
+                                                $"\"{Status.ToDisplayText()}\" keine Auszahlung getätigt werden.");
         }
 
-        
         _payments.Add(payment);
+
+        decimal totalPaid = _payments.Sum(p => p.Amount);
+
+        return new AddPaymentResult(totalPaid, totalPaid > Reserve);
     }
 }

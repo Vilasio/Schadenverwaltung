@@ -5,31 +5,28 @@ namespace Schadenverwaltung.Tests.Domain;
 
 public class ClaimTests
 {
-    // TODO 1: Gültigen Schaden erzeugen und zurückgeben (startet als Reported).
-    //         Werte frei wählen, der Konstruktor muss sie nur akzeptieren.
-    private static Claim CreateClaim()
+    private static Claim CreateClaim(decimal reserve = 1000m)
     {
         return new Claim(1, "CLAIM-0001", new DateOnly(2026, 10, 1),
-            "Dies ist ein Testschaden aus dem Unit-Test", 1000m);
+            "Dies ist ein Testschaden aus dem Unit-Test", reserve);
     }
-    
-    // TODO 2: Gültige Zahlung erzeugen und zurückgeben.
-    private static Payment CreatePayment()
+
+    private static Payment CreatePayment(decimal amount = 100m)
     {
-        return new Payment(100m, new DateOnly(2026, 10, 1), "PAYEE-0001");
+        return new Payment(amount, new DateOnly(2026, 10, 1), "PAYEE-0001");
     }
 
     private static Claim CreateClaimInStatus(ClaimStatus target)
     {
         var claim = CreateClaim();
-        
+
         switch (target)
         {
             case ClaimStatus.Reported: break;
             case ClaimStatus.UnderReview:
                 claim.ChangeStatus(ClaimStatus.UnderReview);
                 break;
-            case ClaimStatus.Settled: 
+            case ClaimStatus.Settled:
                 claim.ChangeStatus(ClaimStatus.UnderReview);
                 claim.ChangeStatus(ClaimStatus.Settled);
                 break;
@@ -50,9 +47,9 @@ public class ClaimTests
     {
         var claim = CreateClaim();
         var payment = CreatePayment();
-        
+
         claim.AddPayment(payment);
-        
+
         var single = Assert.Single(claim.Payments);
         Assert.Same(payment, single);
     }
@@ -65,7 +62,7 @@ public class ClaimTests
     {
         var claim = CreateClaimInStatus(status);
         var payment = CreatePayment();
-        
+
         claim.AddPayment(payment);
 
         var single = Assert.Single(claim.Payments);
@@ -79,9 +76,28 @@ public class ClaimTests
     {
         var claim = CreateClaimInStatus(status);
         var payment = CreatePayment();
-        
+
         Assert.Throws<InvalidOperationException>(() => claim.AddPayment(payment));
-        
+
         Assert.Empty(claim.Payments);
+    }
+
+    [Theory]
+    [InlineData(300, false)] // unter Reserve
+    [InlineData(400, false)] // genau Reserve
+    [InlineData(500, true)] // über Reserve
+    public void AddPayment_SumComparedToReserve_ReportsExceeded(int newAmount, bool expectedExceeded)
+    {
+        //Arrange
+        const decimal initialAmount = 600m;
+        var claim = CreateClaim(reserve: 1000m);
+        claim.AddPayment(CreatePayment(initialAmount));
+
+        //Act
+        var result = claim.AddPayment(CreatePayment(newAmount));
+
+        //Assert
+        Assert.Equal(expectedExceeded, result.ReserveExceeded);
+        Assert.Equal(initialAmount + newAmount, result.TotalPaid);
     }
 }
