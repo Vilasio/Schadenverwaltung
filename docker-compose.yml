@@ -1,0 +1,18 @@
+services:
+  db:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: schadenverwaltung
+      POSTGRES_USER: schadenverwaltung
+      # Wert kommt aus .env; fehlt er, bricht Compose mit dieser Meldung ab
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD fehlt in .env}
+    ports:
+      # nur auf localhost lauschen, nicht im ganzen Netzwerk
+      - "127.0.0.1:5432:5432"
+    volumes:
+      # Ab Postgres 18 wird das Volume auf /var/lib/postgresql eingehängt
+      # (ohne /data, ältere Anleitungen im Netz zeigen das noch anders)
+      - pgdata:/var/lib/postgresql
+
+volumes:
+  pgdata:
