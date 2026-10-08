@@ -38,7 +38,7 @@ public class Claim
     {
         if (!IsTransitionAllowed(Status, newStatus))
         {
-            throw new InvalidOperationException($"Stauswechsel von \"{Status.ToDisplayText()}\" nach \"{newStatus.ToDisplayText()}\" ist nicht erlaubt.");
+            throw new InvalidOperationException($"Statuswechsel von \"{Status.ToDisplayText()}\" nach \"{newStatus.ToDisplayText()}\" ist nicht erlaubt.");
         }
 
         Status = newStatus;

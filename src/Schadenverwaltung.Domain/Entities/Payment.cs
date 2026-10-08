@@ -12,6 +12,7 @@ public class Payment
     {
         ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(amount, 0m);
         ArgumentException.ThrowIfNullOrWhiteSpace(payee);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(payee.Length, 200);
         ArgumentOutOfRangeException.ThrowIfEqual(paymentDate, default);
         
         Amount = amount;
