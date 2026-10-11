@@ -1,5 +1,4 @@
-using Microsoft.EntityFrameworkCore;
-using Schadenverwaltung.Infrastructure.Persistence;
+using Schadenverwaltung.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,10 +8,11 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-var connectionString = builder.Configuration.GetConnectionString("Default") ?? 
-                       throw new InvalidOperationException("Connection String für die Datenbank konnte nicht abgerufen werden.");
+var connectionString = builder.Configuration.GetConnectionString("Default") ??
+                       throw new InvalidOperationException(
+                           "Connection String für die Datenbank konnte nicht abgerufen werden.");
 
-builder.Services.AddDbContext<SchadenverwaltungDbContext>(options => options.UseNpgsql(connectionString));
+builder.Services.AddInfrastructure(connectionString);
 
 var app = builder.Build();
 
