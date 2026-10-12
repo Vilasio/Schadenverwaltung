@@ -12,6 +12,7 @@ public static class DependencyInjection
         services.AddDbContext<SchadenverwaltungDbContext>(options => options.UseNpgsql(connectionString));
         services.AddScoped<IContractNumberGenerator, ContractNumberGenerator>();
 
+
         return services;
     }
 }
