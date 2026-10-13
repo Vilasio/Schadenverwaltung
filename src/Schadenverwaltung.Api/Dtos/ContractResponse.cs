@@ -1,9 +1,11 @@
+using Schadenverwaltung.Domain.Enums;
+
 namespace Schadenverwaltung.Api.Dtos;
 
 public record ContractResponse(
     int Id,
     string ContractNumber,
     string PolicyHolder,
-    string LineOfBusiness,
+    LineOfBusiness LineOfBusiness,
     DateOnly StartDate,
-    string Status );
+    ContractStatus Status);
