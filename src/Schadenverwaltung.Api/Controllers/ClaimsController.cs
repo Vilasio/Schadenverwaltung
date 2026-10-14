@@ -10,7 +10,7 @@ namespace Schadenverwaltung.Api.Controllers;
 
 [ApiController]
 [Route("api/claims")]
-public class ClaimsController: ControllerBase
+public class ClaimsController : ControllerBase
 {
     private readonly SchadenverwaltungDbContext _dbContext;
     private readonly INumberGenerator _numberGenerator;
@@ -64,5 +64,35 @@ public class ClaimsController: ControllerBase
         await _dbContext.SaveChangesAsync();
 
         return CreatedAtAction(nameof(GetById), new { id = claim.Id }, claim.ToResponse());
+    }
+
+    [HttpPatch("{id:int}/status")]
+    public async Task<ActionResult<ClaimResponse>> ChangeStatus(int id, ChangeClaimStatusRequest request)
+    {
+        var claim = await _dbContext.Claims
+            .FirstOrDefaultAsync(c => c.Id == id);
+
+        if (claim is null)
+        {
+            return Problem(
+                statusCode: StatusCodes.Status404NotFound,
+                detail: $"Schaden konnte mit ID={id} nicht gefunden werden.");
+        }
+
+        try
+        {
+            claim.ChangeStatus(request.Status!.Value);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Problem(
+                statusCode: StatusCodes.Status409Conflict,
+                title: "Statuswechsel nicht erlaubt.",
+                detail: ex.Message);
+        }
+
+        await _dbContext.SaveChangesAsync();
+
+        return claim.ToResponse();
     }
 }
