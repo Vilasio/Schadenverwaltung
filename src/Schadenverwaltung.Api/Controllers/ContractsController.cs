@@ -13,12 +13,12 @@ namespace Schadenverwaltung.Api.Controllers;
 public class ContractsController : ControllerBase
 {
     private readonly SchadenverwaltungDbContext _dbContext;
-    private readonly IContractNumberGenerator _contractNumberGenerator;
+    private readonly INumberGenerator _numberGenerator;
 
-    public ContractsController(SchadenverwaltungDbContext dbContext, IContractNumberGenerator contractNumberGenerator)
+    public ContractsController(SchadenverwaltungDbContext dbContext, INumberGenerator numberGenerator)
     {
         _dbContext = dbContext;
-        _contractNumberGenerator = contractNumberGenerator;
+        _numberGenerator = numberGenerator;
     }
 
     [HttpGet]
@@ -50,7 +50,7 @@ public class ContractsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<ContractResponse>> Create(CreateContractRequest request)
     {
-        string contractNumber = await _contractNumberGenerator.NextNumberAsync();
+        string contractNumber = await _numberGenerator.NextContractNumberAsync();
         Contract contract = new Contract(contractNumber, request.PolicyHolder, request.LineOfBusiness, request.StartDate);
         
         _dbContext.Contracts.Add(contract);

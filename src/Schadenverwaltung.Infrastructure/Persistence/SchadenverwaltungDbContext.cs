@@ -19,5 +19,7 @@ public class SchadenverwaltungDbContext : DbContext
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(SchadenverwaltungDbContext).Assembly);
 
         modelBuilder.HasSequence<int>("ContractNumbers");
+        
+        modelBuilder.HasSequence<int>("ClaimNumbers");
     }
 }

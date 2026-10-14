@@ -22,6 +22,8 @@ namespace Schadenverwaltung.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.HasSequence<int>("ClaimNumbers");
+
             modelBuilder.HasSequence<int>("ContractNumbers");
 
             modelBuilder.Entity("Schadenverwaltung.Domain.Entities.Claim", b =>

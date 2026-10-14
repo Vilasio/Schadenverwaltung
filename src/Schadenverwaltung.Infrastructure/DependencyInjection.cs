@@ -10,7 +10,7 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, string connectionString)
     {
         services.AddDbContext<SchadenverwaltungDbContext>(options => options.UseNpgsql(connectionString));
-        services.AddScoped<IContractNumberGenerator, ContractNumberGenerator>();
+        services.AddScoped<INumberGenerator, NumberGenerator>();
 
 
         return services;
